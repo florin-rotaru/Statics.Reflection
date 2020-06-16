@@ -61,11 +61,9 @@ namespace Air.Reflection
             GetValue = CompileGetValue(type, field, DefaultValue);
         }
 
-        private bool HasLiteralOrInitOnlyFlag(FieldInfo fieldInfo)
-        {
-            return fieldInfo.Attributes.HasFlag(FieldAttributes.Literal) ||
+        private bool HasLiteralOrInitOnlyFlag(FieldInfo fieldInfo) =>
+            fieldInfo.Attributes.HasFlag(FieldAttributes.Literal) ||
                 fieldInfo.Attributes.HasFlag(FieldAttributes.InitOnly);
-        }
 
         private void SetFlags()
         {
@@ -80,7 +78,7 @@ namespace Air.Reflection
 
         private static void CreateSignature(out DynamicMethod dynamicMethod, out Emit.ILGenerator il)
         {
-            dynamicMethod = new DynamicMethod($"{nameof(Air)}{Guid.NewGuid().ToString("N")}", typeof(object), new[] { typeof(object) }, false);
+            dynamicMethod = new DynamicMethod($"{nameof(Air)}{Guid.NewGuid():N}", typeof(object), new[] { typeof(object) }, false);
             il = new Emit.ILGenerator(dynamicMethod.GetILGenerator(), true);
         }
 
@@ -150,8 +148,6 @@ namespace Air.Reflection
                 il.Emit(OpCodes.Box, field.FieldType);
 
             il.Emit(OpCodes.Ret);
-
-            var log = il.GetLog().ToString();
 
             return (Func<object, object>)dynamicMethod.CreateDelegate(typeof(Func<object, object>));
         }

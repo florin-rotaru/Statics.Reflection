@@ -7,27 +7,21 @@ namespace Air.Reflection.Emit
         public static class Converters
         {
             #region TimeSpan
-            public static TimeSpan ToTimeSpan(long value)
-            {
-                return new TimeSpan(value);
-            }
+            public static TimeSpan ToTimeSpan(long value) =>
+                new TimeSpan(value);
 
-            public static TimeSpan ToTimeSpan(long? value)
-            {
-                return new TimeSpan(value.GetValueOrDefault());
-            }
+            public static TimeSpan ToTimeSpan(long? value) =>
+                new TimeSpan(value.GetValueOrDefault());
 
-            public static TimeSpan ToTimeSpan(TimeSpan? value)
-            {
-                return value.GetValueOrDefault();
-            }
+            public static TimeSpan ToTimeSpan(TimeSpan? value) =>
+                value.GetValueOrDefault();
 
             public static TimeSpan ToTimeSpan(object value)
             {
                 Type valueType = value.GetType();
 
                 if (value == null)
-                    return default(TimeSpan);
+                    return default;
 
                 if (valueType == typeof(TimeSpan))
                     return (TimeSpan)value;
@@ -46,27 +40,21 @@ namespace Air.Reflection.Emit
             #endregion
 
             #region DateTimeOffset
-            public static DateTimeOffset ToDateTimeOffset(DateTime value)
-            {
-                return new DateTimeOffset(value);
-            }
+            public static DateTimeOffset ToDateTimeOffset(DateTime value) =>
+                new DateTimeOffset(value);
 
-            public static DateTimeOffset ToDateTimeOffset(DateTime? value)
-            {
-                return new DateTimeOffset(value.GetValueOrDefault());
-            }
+            public static DateTimeOffset ToDateTimeOffset(DateTime? value) =>
+                new DateTimeOffset(value.GetValueOrDefault());
 
-            public static DateTimeOffset ToDateTimeOffset(DateTimeOffset? value)
-            {
-                return value.GetValueOrDefault();
-            }
+            public static DateTimeOffset ToDateTimeOffset(DateTimeOffset? value) =>
+                value.GetValueOrDefault();
 
             public static DateTimeOffset ToDateTimeOffset(object value)
             {
                 Type valueType = value.GetType();
 
                 if (value == null)
-                    return default(DateTimeOffset);
+                    return default;
 
                 if (valueType == typeof(DateTimeOffset))
                     return (DateTimeOffset)value;
@@ -85,22 +73,18 @@ namespace Air.Reflection.Emit
             #endregion
 
             #region Guid
-            public static Guid ToGuid(string value)
-            {
-                return new Guid(value);
-            }
+            public static Guid ToGuid(string value) =>
+                new Guid(value);
 
-            public static Guid ToGuid(Guid? value)
-            {
-                return value.GetValueOrDefault();
-            }
+            public static Guid ToGuid(Guid? value) =>
+                value.GetValueOrDefault();
 
             public static Guid ToGuid(object value)
             {
                 Type valueType = value.GetType();
 
                 if (value == null)
-                    return default(Guid);
+                    return default;
 
                 if (valueType == typeof(Guid))
                     return (Guid)value;

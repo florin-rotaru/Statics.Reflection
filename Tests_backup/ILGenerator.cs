@@ -29,7 +29,7 @@ namespace Test
             Type destinationType,
             IEnumerable<MemberInfo> destinationMembers)
         {
-            var returnValue = new DynamicMethod($"{nameof(Air)}{Guid.NewGuid().ToString("N")}", destinationType, new[] { sourceType }, false);
+            var returnValue = new DynamicMethod($"{nameof(Air)}{Guid.NewGuid():N}", destinationType, new[] { sourceType }, false);
             var il = new Emit.ILGenerator(returnValue.GetILGenerator(), true);
 
             Action load_S;
@@ -645,7 +645,7 @@ namespace Test
         {
             var sourceType = typeof(TClassMembers);
             var destinationType = typeof(TClassMembers);
-
+            
             var sourceMember = TypeInfo.GetMembers(sourceType).First(w => w.Name == nameof(TClassMembers.BooleanType));
             var destinationMember = TypeInfo.GetMembers(destinationType).First(w => w.Name == nameof(TClassMembers.DecimalType));
 

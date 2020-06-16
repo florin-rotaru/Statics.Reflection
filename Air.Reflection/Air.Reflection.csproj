@@ -2,15 +2,16 @@
 
   <PropertyGroup>
 	<PackageId>Air.Reflection</PackageId>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Florin Rotaru</Authors>
     <Company />
-    <Version>1.0.2</Version>
+    <Version>2.0.0</Version>
 	<PackageLicenseFile>LICENSE</PackageLicenseFile>
 	<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-	<LangVersion>7.2</LangVersion>
 	<Description>Reflection and IL components</Description>
+	<RepositoryUrl>https://github.com/florin-rotaru/Air.Reflection</RepositoryUrl>
+	<PackageTags>reflection, il</PackageTags>
   </PropertyGroup>
   <ItemGroup>
     <None Include="LICENSE" Pack="true" PackagePath="" />
