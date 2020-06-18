@@ -176,9 +176,22 @@ namespace Air.Reflection
             return string.Empty;
         }
 
-        private static object GetValueTypeDefaultValue(Type valueType) =>
-            Activator.CreateInstance(valueType);
+        private static readonly ConcurrentDictionary<Type, object> ValueTypesDefaultValue = new ConcurrentDictionary<Type, object>();
 
+        private static object GetValueTypeDefaultValue(Type valueType)
+        {
+            if (ValueTypesDefaultValue.TryGetValue(valueType, out object value))
+            {
+                return value;
+            }
+            else
+            {
+                value = Activator.CreateInstance(valueType);
+                ValueTypesDefaultValue.TryAdd(valueType, value);
+                return value;
+            }
+        }
+            
         public static object GetDefaultValue(Type type) =>
             type.IsValueType && Nullable.GetUnderlyingType(type) == null ? GetValueTypeDefaultValue(type) : default;
 

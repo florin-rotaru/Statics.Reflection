@@ -406,7 +406,7 @@ namespace Air.Reflection.Emit
             }
             if (type.IsEnum)
             {
-                EmitLdc_I4((int)value);
+                EmitLoadLiteral(Enum.GetUnderlyingType(type), value);
                 return;
             }
             if (type == typeof(Guid))
@@ -489,7 +489,7 @@ namespace Air.Reflection.Emit
                 Emit(OpCodes.Newobj, DateTimeOffsetConstructorDateTime);
                 return;
             }
-            if (type.IsEnum) { Emit(OpCodes.Ldc_I4_0); return; }
+            if (type.IsEnum) { EmitLoadDefaultValue(Enum.GetUnderlyingType(type)); return; }
             if (type == typeof(Guid)) { Emit(OpCodes.Ldsfld, typeof(Guid).GetFields().First(f => f.Name == nameof(Guid.Empty))); return; }
             if (type == typeof(TimeSpan))
             {
@@ -535,9 +535,9 @@ namespace Air.Reflection.Emit
 
         public void EmitInit(Type type)
         {
-            Type t = type.GetTypeInfo().IsEnum ? Enum.GetUnderlyingType(type) : type;
+            Type t = type.IsEnum ? Enum.GetUnderlyingType(type) : type;
 
-            if (t.GetTypeInfo().IsValueType)
+            if (t.IsValueType)
                 Emit(OpCodes.Initobj, t);
             else if (t.GetConstructor(Type.EmptyTypes) != null)
                 Emit(OpCodes.Newobj, t.GetConstructor(Type.EmptyTypes));
@@ -1014,7 +1014,7 @@ namespace Air.Reflection.Emit
                 if (nonNullableDestinationType != typeof(decimal))
                     EmitConvertToNonNullableNumeric(nonNullableDestinationType);
                 else
-                    EmitConvertTo(typeof(int), nonNullableDestinationType);
+                    EmitConvertTo(Enum.GetUnderlyingType(nonNullableSourceType), nonNullableDestinationType);
             }
             else if (TypeInfo.IsNumeric(nonNullableSourceType) &&
                 nonNullableSourceType != typeof(decimal) &&
@@ -1044,9 +1044,9 @@ namespace Air.Reflection.Emit
             else if (TypeInfo.IsNumeric(nonNullableSourceType))
             {
                 if (nonNullableSourceType != typeof(decimal))
-                    EmitConvertToNonNullableNumeric(typeof(int));
+                    EmitConvertToNonNullableNumeric(Enum.GetUnderlyingType(nonNullableDestinationType));
                 else
-                    EmitConvertTo(nonNullableSourceType, typeof(int));
+                    EmitConvertTo(nonNullableSourceType, Enum.GetUnderlyingType(nonNullableDestinationType));
             }
             else if (TypeInfo.IsEnum(nonNullableSourceType))
             {

@@ -3,13 +3,11 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <IsPackable>false</IsPackable>
-	<AssemblyName></AssemblyName>
-    <RootNamespace>Models</RootNamespace>
+    <AssemblyName></AssemblyName>
+    <RootNamespace>Playground</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Air.Mapper" Version="1.0.0" />
-    <PackageReference Include="AutoFixture" Version="4.11.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.1" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.2">
@@ -23,7 +21,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Air.Reflection\Air.Reflection.csproj" />
+    <ProjectReference Include="..\Models\Models.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

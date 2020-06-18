@@ -157,33 +157,19 @@ namespace Internal
                 JsonConvert.SerializeObject(destination) != null;
         }
 
-        private void AssertEqualsOrDefaultReadonly<D>(S source, D destination) where D : new()
-        {
-            Assert.True(CanSerialize(source, destination));
-
-            if (Nullable.GetUnderlyingType(typeof(D)) != null)
-                Assert.NotNull(destination);
-            else if (typeof(D).IsValueType)
-                Assert.True(CompareEquals(new D(), destination));
-        }
-
         private void AssertEqualsOrDefault<D>(
             S source,
             D destination,
             bool hasReadonlyMembers) where D : new()
         {
             if (hasReadonlyMembers)
-                AssertEqualsOrDefaultReadonly(source, destination);
+                return;
 
             if (hasReadonlyMembers)
                 return;
 
             Assert.True(CanSerialize(source, destination));
-
-            if (source == null && Nullable.GetUnderlyingType(typeof(D)) == null && typeof(D).IsValueType)
-                Assert.True(CompareEquals(destination, new D()));
-            else
-                Assert.True(CompareEquals(source, destination));
+            Assert.True(CompareEquals(source, destination));
         }
 
         private bool CompareEquals<L, R>(L left, R right)
@@ -203,12 +189,6 @@ namespace Internal
             return true;
         }
 
-        private static readonly MethodInfo EnumParse = typeof(Enum).GetMethods(BindingFlags.Public | BindingFlags.Static).First(m =>
-            m.IsGenericMethod &&
-            m.Name == nameof(Enum.Parse) &&
-            m.GetParameters().Length == 1 &&
-            m.GetParameters()[0].ParameterType == typeof(string));
-
         private static readonly MethodInfo ObjectToString = typeof(object).GetMethod(nameof(object.ToString), new Type[] { });
 
         private void AssertMembersEqual<L, R>(L left, string leftMemberName, R right, string rightMemberName)
@@ -225,20 +205,16 @@ namespace Internal
             var rightMemberValue = rightMember.GetValue(right);
             var leftMemberValue = leftMember.GetValue(left);
 
-            if (TypeInfo.IsEnum(leftMember.Type))
+            if (rightMember.IsEnum)
             {
-
-            }
-            if (TypeInfo.IsEnum(rightMember.Type))
-            {
-                if (TypeInfo.IsNumeric(leftMember.Type))
+                if (leftMember.IsNumeric)
                 {
                     rightMemberValue = Convert.ChangeType(rightMemberValue, Enum.GetUnderlyingType(rightMember.Type));
                     Assert.Equal(leftMemberValue.ToString(), rightMemberValue.ToString());
                 }
                 else if (leftMember.Type == typeof(string))
                 {
-                    Assert.Equal(leftMemberValue, ObjectToString.Invoke(null, new[] { rightMemberValue }).ToString());
+                    Assert.Equal(leftMemberValue, ObjectToString.Invoke(null, new[] { rightMemberValue }));
                 }
             }
             else
@@ -319,14 +295,14 @@ namespace Internal
 
                     object fixtureMemberValue = null;
 
-                    if (TypeInfo.IsNumeric(sourceMembers[s].Type) &&
-                        (TypeInfo.IsNumeric(destinationMembers[d].Type) || destinationMembers[d].Type == typeof(char)))
+                    if (sourceMembers[s].IsNumeric &&
+                        (destinationMembers[d].IsNumeric || destinationMembers[d].Type == typeof(char)))
                         fixtureMemberValue = random.Next(0, 127);
 
-                    if (TypeInfo.IsNumeric(sourceMembers[s].Type) && TypeInfo.IsEnum(destinationMembers[d].Type))
+                    if (sourceMembers[s].IsNumeric && destinationMembers[d].IsEnum)
                         fixtureMemberValue = 1;
 
-                    if (TypeInfo.IsEnum(destinationMembers[d].Type))
+                    if (destinationMembers[d].IsEnum)
                     {
                         if (sourceMembers[s].Type == typeof(string))
                             fixtureMemberValue = "B";
