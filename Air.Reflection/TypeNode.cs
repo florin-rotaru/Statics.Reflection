@@ -10,7 +10,7 @@ namespace Air.Reflection
         public Type Type { get; set; }
         public bool IsStatic { get; set; }
         public Type NullableUnderlyingType { get; set; }
-        public List<MemberInfo> Members { get; set; }
+        public IEnumerable<MemberInfo> Members { get; set; }
 
         public object Value { get; set; }
 

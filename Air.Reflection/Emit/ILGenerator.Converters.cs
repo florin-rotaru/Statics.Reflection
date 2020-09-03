@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Air.Reflection.Emit
 {
@@ -6,6 +9,29 @@ namespace Air.Reflection.Emit
     {
         public static class Converters
         {
+            public static class Enum<TEnum> where TEnum : struct
+            {
+                private static readonly Dictionary<TEnum, string> Values = Enum.GetNames(typeof(TEnum)).ToDictionary(k => Enum.Parse<TEnum>(k), v => v);
+
+                public static string GetName(TEnum val) => Values[val];
+            }
+
+            #region
+            public static T[] ToArray<T>(ICollection<T> collection)
+            {
+                T[] array = new T[collection.Count];
+                collection.CopyTo(array, 0);
+                return array;
+            }
+
+            public static T[] ToArray<T>(IProducerConsumerCollection<T> collection)
+            {
+                T[] array = new T[collection.Count];
+                collection.CopyTo(array, 0);
+                return array;
+            }
+            #endregion
+
             #region TimeSpan
             public static TimeSpan ToTimeSpan(long value) =>
                 new TimeSpan(value);

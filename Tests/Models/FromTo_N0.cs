@@ -48,7 +48,7 @@ namespace Internal
             {
                 sourceLocal = il.DeclareLocal(sourceUnderlyingType);
                 il.EmitLoadArgument(sourceType, 0);
-                il.Emit(OpCodes.Call, sourceType.GetProperty("Value").GetGetMethod());
+                il.EmitCallMethod(sourceType.GetProperty("Value").GetGetMethod());
                 il.EmitStoreLocal(sourceLocal);
             }
 
@@ -177,10 +177,10 @@ namespace Internal
             var sourceMembers = TypeInfo.GetMembers(typeof(L), true);
             var destinationMembers = TypeInfo.GetMembers(typeof(R), true);
 
-            for (int s = 0; s < sourceMembers.Count; s++)
+            foreach (MemberInfo sourceMember in sourceMembers)
             {
-                var sourceMemberValue = sourceMembers[s].GetValue(left);
-                var destinationMemberValue = destinationMembers.First(m => m.Name == sourceMembers[s].Name).GetValue(right);
+                var sourceMemberValue = sourceMember.GetValue(left);
+                var destinationMemberValue = destinationMembers.First(m => m.Name == sourceMember.Name).GetValue(right);
 
                 if (!object.Equals(sourceMemberValue, destinationMemberValue))
                     return false;
@@ -189,7 +189,7 @@ namespace Internal
             return true;
         }
 
-        private static readonly MethodInfo ObjectToString = typeof(object).GetMethod(nameof(object.ToString), new Type[] { });
+        private static readonly MethodInfo ObjectToString = typeof(object).GetMethod(nameof(object.ToString), Type.EmptyTypes);
 
         private void AssertMembersEqual<L, R>(L left, string leftMemberName, R right, string rightMemberName)
         {
@@ -334,8 +334,8 @@ namespace Internal
             var outSourceMembers = TypeInfo.GetMembers(sourceType, true);
             var outDestinationMembers = TypeInfo.GetMembers(destinationType, true);
 
-            sourceMembers = outSourceMembers.Where(s => outDestinationMembers.Exists(m => m.Name == s.Name)).OrderBy(o => o.Name).ToList();
-            destinationMembers = outDestinationMembers.Where(s => outSourceMembers.Exists(m => m.Name == s.Name)).OrderBy(o => o.Name).ToList();
+            sourceMembers = outSourceMembers.Where(s => outDestinationMembers.Any(m => m.Name == s.Name)).OrderBy(o => o.Name).ToList();
+            destinationMembers = outDestinationMembers.Where(s => outSourceMembers.Any(m => m.Name == s.Name)).OrderBy(o => o.Name).ToList();
         }
 
         public void ToClass<D>(bool hasReadonlyMembers, bool hasStaticMembers) where D : new()

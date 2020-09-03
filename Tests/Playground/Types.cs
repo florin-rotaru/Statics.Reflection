@@ -44,11 +44,11 @@ namespace Playground
         [Fact]
         public void Recursion()
         {
-            var recursion_0 = TypeInfo.GetNodes(typeof(TNode), true);
+            var recursion_0 = TypeInfo.GetNodes(typeof(TNode), true).ToList();
 
             Assert.NotEmpty(recursion_0);
 
-            var recursion_1 = TypeInfo.GetNodes(typeof(TNode), true, 1);
+            var recursion_1 = TypeInfo.GetNodes(typeof(TNode), true, 1).ToList();
 
             Assert.True(recursion_1.Count > recursion_0.Count);
         }

@@ -243,13 +243,69 @@ namespace Air.Reflection.Emit
         private static readonly ConstructorInfo DecimalConstructorBits = typeof(decimal).GetConstructor(new[] { typeof(int[]) });
         private static readonly ConstructorInfo GuidConstructorBytes = typeof(Guid).GetConstructor(new[] { typeof(byte[]) });
         private static readonly ConstructorInfo TimeSpanConstructorTicks = typeof(TimeSpan).GetConstructor(new[] { typeof(long) });
-        private static readonly MethodInfo ObjectToString = typeof(object).GetMethod(nameof(object.ToString), new Type[] { });
+        private static readonly MethodInfo ObjectToString = typeof(object).GetMethod(nameof(object.ToString), Type.EmptyTypes);
 
-        public void EmitCall(MemberInfo member, MethodInfo method) =>
-            Emit(member.IsStatic || member.MemberOf.IsValueType ? OpCodes.Call : OpCodes.Callvirt, method);
-
+        public void EmitCallMethod(MethodInfo method) =>
+            Emit(method.IsVirtual ? OpCodes.Callvirt : OpCodes.Call, method);
+                
+        public void EmitCallMethod(MemberInfo member, MethodInfo method) =>
+            Emit(member.IsStatic || member.MemberOf.IsValueType ? 
+                OpCodes.Call : 
+                method.IsVirtual ? OpCodes.Callvirt : OpCodes.Call, method);
 
         #region Load
+
+        public void EmitLdelem(Type type)
+        {
+            if (type == typeof(bool)) { Emit(OpCodes.Ldelem_U1); return; }
+            if (type == typeof(char)) { Emit(OpCodes.Ldelem_U2); return; }
+            if (type == typeof(sbyte)) { Emit(OpCodes.Ldelem_I1); return; }
+            if (type == typeof(byte)) { Emit(OpCodes.Ldelem_U1); return; }
+            if (type == typeof(short)) { Emit(OpCodes.Ldelem_I2); return; }
+            if (type == typeof(ushort)) { Emit(OpCodes.Ldelem_U2); return; }
+            if (type == typeof(int)) { Emit(OpCodes.Ldelem_I4); return; }
+            if (type == typeof(uint)) { Emit(OpCodes.Ldelem_U4); return; }
+            if (type == typeof(long)) { Emit(OpCodes.Ldelem_I8); return; }
+            if (type == typeof(ulong)) { Emit(OpCodes.Ldelem_I8); return; }
+            if (type == typeof(float)) { Emit(OpCodes.Ldelem_R4); return; }
+            if (type == typeof(double)) { Emit(OpCodes.Ldelem_R8); return; }
+            if (type == typeof(decimal)) { Emit(OpCodes.Ldelem, type); return; }
+            if (type == typeof(string)) { Emit(OpCodes.Ldelem_Ref); return; }
+            if (type == typeof(DateTime)) { Emit(OpCodes.Ldelem, type); return; }
+            if (type == typeof(DateTimeOffset)) { Emit(OpCodes.Ldelem, type); return; }
+            if (type == typeof(Guid)) { Emit(OpCodes.Ldelem, type); return; }
+            if (type == typeof(TimeSpan)) { Emit(OpCodes.Ldelem, type); return; }
+            if (type.IsEnum) { Emit(OpCodes.Ldelem_I4); return; }
+            if (type.IsValueType) { Emit(OpCodes.Ldelem, type); return; }
+            
+            Emit(OpCodes.Ldelem_Ref);
+        }
+
+        public void EmitStelem(Type type)
+        {
+            if (type == typeof(bool)) { Emit(OpCodes.Stelem_I1); return; }
+            if (type == typeof(char)) { Emit(OpCodes.Stelem_I2); return; }
+            if (type == typeof(sbyte)) { Emit(OpCodes.Stelem_I1); return; }
+            if (type == typeof(byte)) { Emit(OpCodes.Stelem_I1); return; }
+            if (type == typeof(short)) { Emit(OpCodes.Stelem_I2); return; }
+            if (type == typeof(ushort)) { Emit(OpCodes.Stelem_I2); return; }
+            if (type == typeof(int)) { Emit(OpCodes.Stelem_I4); return; }
+            if (type == typeof(uint)) { Emit(OpCodes.Stelem_I4); return; }
+            if (type == typeof(long)) { Emit(OpCodes.Stelem_I8); return; }
+            if (type == typeof(ulong)) { Emit(OpCodes.Stelem_I8); return; }
+            if (type == typeof(float)) { Emit(OpCodes.Stelem_R4); return; }
+            if (type == typeof(double)) { Emit(OpCodes.Stelem_R8); return; }
+            if (type == typeof(decimal)) { Emit(OpCodes.Stelem, type); return; }
+            if (type == typeof(string)) { Emit(OpCodes.Stelem_Ref); return; }
+            if (type == typeof(DateTime)) { Emit(OpCodes.Stelem, type); return; }
+            if (type == typeof(DateTimeOffset)) { Emit(OpCodes.Stelem, type); return; }
+            if (type == typeof(Guid)) { Emit(OpCodes.Stelem, type); return; }
+            if (type == typeof(TimeSpan)) { Emit(OpCodes.Stelem, type); return; }
+            if (type.IsEnum) { Emit(OpCodes.Stelem_I4); return; }
+            if (type.IsValueType) { Emit(OpCodes.Stelem, type); return; }
+
+            Emit(OpCodes.Stelem_Ref);
+        }
 
         public void EmitLdc_I4(int value)
         {
@@ -305,9 +361,9 @@ namespace Air.Reflection.Emit
                 Emit(OpCodes.Ldarga, (short)index);
         }
 
-        public void EmitLoadArgument(Type argumentType, int index)
+        public void EmitLoadArgument(Type argumentType, int index, bool isByRef = false)
         {
-            if (!argumentType.IsValueType)
+            if (!argumentType.IsValueType || isByRef)
                 EmitLdarg(index);
             else
                 EmitLdarga(index);
@@ -456,7 +512,7 @@ namespace Air.Reflection.Emit
 
             if (Nullable.GetUnderlyingType(type) != null)
             {
-                Emit(OpCodes.Call, typeof(Nullables).GetMethod(nameof(Nullables.GetDefaultValue)).MakeGenericMethod(Nullable.GetUnderlyingType(type)));
+                EmitCallMethod(typeof(Nullables).GetMethod(nameof(Nullables.GetDefaultValue)).MakeGenericMethod(Nullable.GetUnderlyingType(type)));
                 return;
             }
 
@@ -507,7 +563,7 @@ namespace Air.Reflection.Emit
         public void EmitLoadStaticMemberValue(MemberInfo member)
         {
             if (member.MemberType == MemberTypes.Property)
-                EmitCall(member, ((PropertyInfo)member.MemberTypeInfo).GetGetMethod());
+                EmitCallMethod(((PropertyInfo)member.MemberTypeInfo).GetGetMethod());
             else if (member.MemberType == MemberTypes.Field)
                 Emit(OpCodes.Ldsfld, (FieldInfo)member.MemberTypeInfo);
             else
@@ -521,7 +577,7 @@ namespace Air.Reflection.Emit
             else if (member.IsStatic)
                 EmitLoadStaticMemberValue(member);
             else if (member.MemberType == MemberTypes.Property)
-                EmitCall(member, ((PropertyInfo)member.MemberTypeInfo).GetGetMethod());
+                EmitCallMethod(((PropertyInfo)member.MemberTypeInfo).GetGetMethod());
             else if (member.MemberType == MemberTypes.Field)
                 Emit(OpCodes.Ldfld, (FieldInfo)member.MemberTypeInfo);
             else
@@ -834,7 +890,7 @@ namespace Air.Reflection.Emit
         public void EmitSetStaticMemberValue(MemberInfo member)
         {
             if (member.MemberType == MemberTypes.Property)
-                EmitCall(member, ((PropertyInfo)member.MemberTypeInfo).GetSetMethod());
+                EmitCallMethod(((PropertyInfo)member.MemberTypeInfo).GetSetMethod());
             else if (member.MemberType == MemberTypes.Field)
                 Emit(OpCodes.Stsfld, (FieldInfo)member.MemberTypeInfo);
             else
@@ -848,7 +904,7 @@ namespace Air.Reflection.Emit
             else if (member.IsStatic)
                 EmitSetStaticMemberValue(member);
             else if (member.MemberType == MemberTypes.Property)
-                EmitCall(member, ((PropertyInfo)member.MemberTypeInfo).GetSetMethod());
+                EmitCallMethod(((PropertyInfo)member.MemberTypeInfo).GetSetMethod());
             else if (member.MemberType == MemberTypes.Field)
                 Emit(OpCodes.Stfld, (FieldInfo)member.MemberTypeInfo);
             else
@@ -966,7 +1022,7 @@ namespace Air.Reflection.Emit
             if (method == null)
                 throw new Exception($"Cannot convert from {nonNullableSourceType} to {nonNullableDestinationType}");
 
-            Emit(OpCodes.Call, method);
+            EmitCallMethod(method);
         }
 
         private void EmitConvertToObject(Type nonNullableSourceType)
@@ -977,12 +1033,16 @@ namespace Air.Reflection.Emit
 
         private void EmitConvertToString(Type nonNullableSourceType)
         {
-            if (nonNullableSourceType != typeof(string))
+            if (nonNullableSourceType.IsEnum)
+            {
+                EmitCallMethod(typeof(Converters.Enum<>).MakeGenericType(nonNullableSourceType).GetMethod(nameof(Enum.GetName), new Type[] { nonNullableSourceType }));
+            }
+            else if (nonNullableSourceType != typeof(string))
             {
                 if (nonNullableSourceType != typeof(object))
                     Emit(OpCodes.Box, nonNullableSourceType);
 
-                Emit(OpCodes.Callvirt, ObjectToString);
+                EmitCallMethod(ObjectToString);
             }
         }
 
@@ -991,13 +1051,13 @@ namespace Air.Reflection.Emit
         {
             if (nonNullableSourceType == typeof(string))
             {
-                Emit(OpCodes.Call, typeof(bool).GetMethod(nameof(bool.Parse), new Type[] { typeof(string) }));
+                EmitCallMethod(typeof(bool).GetMethod(nameof(bool.Parse), new Type[] { typeof(string) }));
             }
             else if (TypeInfo.IsEnum(nonNullableSourceType))
             {
                 EmitConvertToString(nonNullableSourceType);
                 EmitLdc_I4(0);
-                Emit(OpCodes.Callvirt, typeof(string).GetProperties().First(p => p.GetIndexParameters().Length > 0).GetGetMethod());
+                EmitCallMethod(typeof(string).GetProperties().First(p => p.GetIndexParameters().Length > 0).GetGetMethod());
             }
             else
             {
@@ -1034,12 +1094,12 @@ namespace Air.Reflection.Emit
         {
             if (nonNullableSourceType == typeof(string))
             {
-                Emit(OpCodes.Call, EnumParse.MakeGenericMethod(nonNullableDestinationType));
+                EmitCallMethod(EnumParse.MakeGenericMethod(nonNullableDestinationType));
             }
             else if (nonNullableSourceType == typeof(char))
             {
                 EmitConvertToString(nonNullableSourceType);
-                Emit(OpCodes.Call, EnumParse.MakeGenericMethod(nonNullableDestinationType));
+                EmitCallMethod(EnumParse.MakeGenericMethod(nonNullableDestinationType));
             }
             else if (TypeInfo.IsNumeric(nonNullableSourceType))
             {
@@ -1051,7 +1111,7 @@ namespace Air.Reflection.Emit
             else if (TypeInfo.IsEnum(nonNullableSourceType))
             {
                 EmitConvertToString(nonNullableSourceType);
-                Emit(OpCodes.Call, EnumParse.MakeGenericMethod(nonNullableDestinationType));
+                EmitCallMethod(EnumParse.MakeGenericMethod(nonNullableDestinationType));
             }
             else
             {
@@ -1076,7 +1136,7 @@ namespace Air.Reflection.Emit
 
             if (Nullable.GetUnderlyingType(source) != null)
             {
-                Emit(OpCodes.Call, typeof(Nullables).GetMethod(nameof(Nullables.GetValueOrDefault)).MakeGenericMethod(Nullable.GetUnderlyingType(source)));
+                EmitCallMethod(typeof(Nullables).GetMethod(nameof(Nullables.GetValueOrDefault)).MakeGenericMethod(Nullable.GetUnderlyingType(source)));
                 nonNullableSourceType = Nullable.GetUnderlyingType(source);
             }
 

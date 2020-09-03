@@ -106,7 +106,8 @@ namespace Air.Reflection
             {
                 il.Emit(OpCodes.Ldarg_0);
                 il.Emit(OpCodes.Castclass, type);
-                il.Emit(OpCodes.Callvirt, property.GetGetMethod());
+
+                il.EmitCallMethod(property.GetGetMethod());
             }
 
             if (property.PropertyType.IsValueType)

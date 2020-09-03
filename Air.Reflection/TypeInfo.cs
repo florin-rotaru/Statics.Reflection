@@ -57,12 +57,12 @@ namespace Air.Reflection
             IsNumeric(o.GetType());
 
         public static bool IsEnumerable(Type type) =>
-            typeof(IEnumerable).IsAssignableFrom(type);
+            type == typeof(IEnumerable) || typeof(IEnumerable).IsAssignableFrom(type);
 
         public static bool IsStatic(Type type) =>
             type.IsAbstract && type.IsSealed;
 
-        public static readonly Type[] BuiltInTypes = new Type[]
+        private static readonly Type[] BuiltInTypes = new Type[]
         {
             typeof(bool),
 
@@ -96,6 +96,8 @@ namespace Air.Reflection
             typeof(object)
         };
 
+        public static IEnumerable<Type> GetBuiltInTypes() => BuiltInTypes;
+
         static bool BuiltInTypesContains(Type type)
         {
             for (int i = 0; i < BuiltInTypes.Length; i++)
@@ -117,7 +119,40 @@ namespace Air.Reflection
         public static bool IsNonBuiltInStruct(Type type) =>
             !IsBuiltIn(type) && type.IsValueType;
 
-        public static List<TypeNode> GetNodes(Type type, bool useNullableUnderlyingTypeMembers, int recursion = 0)
+        /// <summary>
+        /// Determines whether the type implements generic type interface (example: IEnumerable<>)
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="genericTypeInterface"></param>
+        /// <returns></returns>
+        public static bool ImplementsGenericTypeInterface(Type type, Type genericTypeInterface) =>
+           type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == genericTypeInterface);
+
+        /// <summary>
+        /// Determines whether the type implements any of the generic type interfaces (example: IEnumerable<>)
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="genericTypeInterface"></param>
+        /// <returns></returns>
+        public static bool ImplementsAnyGenericTypeInterface(Type type, params Type[] genericTypeInterface) =>
+           type.GetInterfaces().Any(i => i.IsGenericType && genericTypeInterface.Contains(i.GetGenericTypeDefinition()));
+
+        /// <summary>
+        /// Returns the interface which is of type generic 
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="genericTypeInterface"></param>
+        /// <returns></returns>
+        public static Type GetGenericTypeInterface(Type type, Type genericTypeInterface) =>
+            type.GetInterfaces().FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == genericTypeInterface);
+
+
+        public static IEnumerable<TypeNode> GetNodes(
+            Type type, 
+            bool useNullableUnderlyingTypeMembers, 
+            int recursion = 0, 
+            int depth = 0,
+            Type[] ignoreNodeTypes = null)
         {
             if (recursion < 0)
                 throw new ArgumentException(nameof(recursion));
@@ -134,24 +169,28 @@ namespace Air.Reflection
 
                 returnValue.Add(queueNode);
 
-                for (int m = 0; m < queueNode.Members.Count; m++)
+                foreach (MemberInfo member in queueNode.Members)
                 {
-                    if (queueNode.Members[m].IsEnum ||
-                        queueNode.Members[m].IsBuiltIn ||
-                        queueNode.Members[m].IsEnumerable)
+                    if (member.IsEnum ||
+                        member.IsBuiltIn ||
+                        member.IsEnumerable ||
+                        (depth != 0 && queueNode.Depth >= depth) ||
+                        (ignoreNodeTypes != null && ignoreNodeTypes.Contains(member.Type)))
                         continue;
 
                     TypeNode node = new TypeNode(
-                        queueNode.Name == string.Empty ? queueNode.Members[m].Name : queueNode.Name + DOT + queueNode.Members[m].Name,
+                        queueNode.Name == string.Empty ? member.Name : queueNode.Name + DOT + member.Name,
                         queueNode.Depth + 1,
-                        queueNode.Members[m].Type,
-                        queueNode.Members[m].IsStatic,
+                        member.Type,
+                        member.IsStatic,
                         useNullableUnderlyingTypeMembers);
 
                     int occurrence = returnValue.Count(n =>
                         n.Depth < node.Depth &&
-                        n.Type == node.Type ||
-                        n.Type == node.NullableUnderlyingType);
+                        (
+                            n.Type == node.Type ||
+                            n.Type == node.NullableUnderlyingType
+                        ));
 
                     if (occurrence <= recursion)
                         queue.Enqueue(node);
@@ -162,9 +201,6 @@ namespace Air.Reflection
 
             return returnValue;
         }
-
-        public static List<TypeNode> GetNodes<T>(bool useNullableUnderlyingTypeMembers, int recursion = 0) =>
-            GetNodes(typeof(T), useNullableUnderlyingTypeMembers, recursion);
 
         public static string GetNodeName(string member)
         {
@@ -191,7 +227,7 @@ namespace Air.Reflection
                 return value;
             }
         }
-            
+
         public static object GetDefaultValue(Type type) =>
             type.IsValueType && Nullable.GetUnderlyingType(type) == null ? GetValueTypeDefaultValue(type) : default;
 
@@ -266,7 +302,7 @@ namespace Air.Reflection
             return retunValue.Count != 0 ? string.Join(".", retunValue.ToArray()) : string.Empty;
         }
 
-        public static List<MemberInfo> GetMembers(Type type, bool useNullableUnderlyingTypeMembers = false)
+        public static IEnumerable<MemberInfo> GetMembers(Type type, bool useNullableUnderlyingTypeMembers = false)
         {
             Type targetType = type;
 
@@ -290,23 +326,23 @@ namespace Air.Reflection
             return retunValue;
         }
 
-        public static List<MemberInfo> GetGettableMembers(Type type, bool useNullableUnderlyingTypeMembers = false) =>
+        public static IEnumerable<MemberInfo> GetGettableMembers(Type type, bool useNullableUnderlyingTypeMembers = false) =>
             GetMembers(type, useNullableUnderlyingTypeMembers).Where(w => w.HasGetMethod).ToList();
 
-        public static List<MemberInfo> GetSettableMembers(Type type, bool useNullableUnderlyingTypeMembers = false) =>
+        public static IEnumerable<MemberInfo> GetSettableMembers(Type type, bool useNullableUnderlyingTypeMembers = false) =>
             GetMembers(type, useNullableUnderlyingTypeMembers).Where(w => w.HasSetMethod).ToList();
 
-        public static List<string> GetMembersNames(Type type, bool useNullableUnderlyingTypeMembers = false, int recursion = 0) =>
+        public static IEnumerable<string> GetMembersNames(Type type, bool useNullableUnderlyingTypeMembers = false, int recursion = 0) =>
             GetNodes(type, useNullableUnderlyingTypeMembers, recursion)
                 .SelectMany(
                     s => s.Members,
                     (node, member) => node.Name == string.Empty ? member.Name : node.Name + DOT + member.Name)
                 .ToList();
 
-        public static List<string> GetMembersNames<T>(bool useNullableUnderlyingTypeMembers = false, int recursion = 0) =>
+        public static IEnumerable<string> GetMembersNames<T>(bool useNullableUnderlyingTypeMembers = false, int recursion = 0) =>
             GetMembersNames(typeof(T), useNullableUnderlyingTypeMembers, recursion);
 
-        public static List<string> GetNames(Expression expression)
+        public static IEnumerable<string> GetNames(Expression expression)
         {
             List<string> retunValue = new List<string>();
             Queue<Expression> queue = new Queue<Expression>(new[] { expression });
@@ -327,7 +363,7 @@ namespace Air.Reflection
             return retunValue;
         }
 
-        public static Dictionary<string, MemberInfo> MembersInfoDictionary(Type type, bool useNullableUnderlyingTypeMembers = false, int recursion = 0) =>
+        public static IDictionary<string, MemberInfo> MembersInfoDictionary(Type type, bool useNullableUnderlyingTypeMembers = false, int recursion = 0) =>
             GetNodes(type, useNullableUnderlyingTypeMembers, recursion)
                 .SelectMany(
                     node => node.Members,
@@ -336,11 +372,11 @@ namespace Air.Reflection
                         member))
                 .ToDictionary(kv => kv.Key, kv => kv.Value);
 
-        public static Dictionary<string, object> ValuesDictionary<T>(T values, int recursion = 0)
+        public static IDictionary<string, object> ValuesDictionary<T>(T values, int recursion = 0)
         {
             Dictionary<string, object> retunValue = new Dictionary<string, object>();
 
-            List<TypeNode> nodes = GetNodes(typeof(T), true, recursion);
+            List<TypeNode> nodes = GetNodes(typeof(T), true, recursion).ToList();
             nodes.First(w => w.Depth == 0).Value = values;
 
             for (int n = 0; n < nodes.Count; n++)
