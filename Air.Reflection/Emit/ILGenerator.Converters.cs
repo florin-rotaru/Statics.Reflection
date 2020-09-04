@@ -13,7 +13,7 @@ namespace Air.Reflection.Emit
             {
                 private static readonly Dictionary<TEnum, string> Values = Enum.GetNames(typeof(TEnum)).ToDictionary(k => Enum.Parse<TEnum>(k), v => v);
 
-                public static string GetName(TEnum val) => Values[val];
+                public static string GetName(TEnum value) => Values[value];
             }
 
             #region
