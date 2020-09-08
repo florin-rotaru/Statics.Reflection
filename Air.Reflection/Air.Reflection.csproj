@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	<PackageId>Air.Reflection</PackageId>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>Florin Rotaru</Authors>
+    <Company />
+    <Version>3.1.0</Version>
+	<PackageLicenseFile>LICENSE</PackageLicenseFile>
+	<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+	<Description>Reflection and IL components</Description>
+	<RepositoryUrl>https://github.com/florin-rotaru/Air.Reflection</RepositoryUrl>
+	<PackageTags>reflection, il</PackageTags>
+	<LangVersion>8.0</LangVersion>
+	<Copyright></Copyright>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="LICENSE" Pack="true" PackagePath="" />
+  </ItemGroup>
+  
+</Project>
