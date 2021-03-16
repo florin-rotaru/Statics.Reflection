@@ -28,9 +28,9 @@ namespace Air.Reflection.Emit
         public StringBuilder GetLog() =>
             new StringBuilder(LocalsBuilder.ToString())
                 .Append(LocalsBuilder.Length != 0 ? Environment.NewLine : string.Empty)
-                .Append(LogBuilder.ToString());
+                .Append(LogBuilder);
 
-        #region System.Reflection.Emit.ILGenerator 4.1.1.0
+        #region System.Reflection.Emit.ILGenerator Version=5.0.0.0
 
         public int ILOffset => IL.ILOffset;
 
@@ -1176,9 +1176,9 @@ namespace Air.Reflection.Emit
            MemberInfo source,
            MemberInfo destination)
         {
-            if (load == null) throw new ArgumentException(nameof(load));
-            if (source == null || source.Type == null) throw new ArgumentException(nameof(source));
-            if (destination == null || destination.Type == null) throw new ArgumentException(nameof(destination));
+            if (load == null) throw new ArgumentException(null, nameof(load));
+            if (source == null || source.Type == null) throw new ArgumentException(null, nameof(source));
+            if (destination == null || destination.Type == null) throw new ArgumentException(null, nameof(destination));
 
             if (source.Type == destination.Type)
             {

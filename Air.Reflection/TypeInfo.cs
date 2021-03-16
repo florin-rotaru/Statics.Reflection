@@ -155,7 +155,7 @@ namespace Air.Reflection
             Type[] ignoreNodeTypes = null)
         {
             if (recursion < 0)
-                throw new ArgumentException(nameof(recursion));
+                throw new ArgumentException(null, nameof(recursion));
 
             List<TypeNode> returnValue = new List<TypeNode>();
 
@@ -262,7 +262,7 @@ namespace Air.Reflection
             if (member != null)
                 for (int c = member.Length - 1; c > -1; c--)
                     if (member[c] == DOT)
-                        return member.Substring(c + 1, member.Length - (c + 1));
+                        return member[(c + 1)..];
 
             return member ?? string.Empty;
         }
@@ -278,10 +278,10 @@ namespace Air.Reflection
                 {
                     evaluate = null;
                 }
-                else if (evaluate is MemberExpression)
+                else if (evaluate is MemberExpression memberExpression)
                 {
-                    retunValue.Push(((MemberExpression)evaluate).Member.Name);
-                    evaluate = includePath ? ((MemberExpression)evaluate).Expression : null;
+                    retunValue.Push(memberExpression.Member.Name);
+                    evaluate = includePath ? memberExpression.Expression : null;
                 }
                 else if (evaluate is UnaryExpression &&
                     evaluate.NodeType == ExpressionType.Convert ||
@@ -289,9 +289,9 @@ namespace Air.Reflection
                 {
                     evaluate = ((UnaryExpression)evaluate).Operand;
                 }
-                else if (evaluate is LambdaExpression)
+                else if (evaluate is LambdaExpression lambdaExpression)
                 {
-                    evaluate = ((LambdaExpression)evaluate).Body;
+                    evaluate = lambdaExpression.Body;
                 }
                 else
                 {
@@ -350,14 +350,14 @@ namespace Air.Reflection
             while (queue.Count != 0)
             {
                 Expression expr = queue.Dequeue();
-                if (expr is MemberExpression)
-                    retunValue.Add(((MemberExpression)expr).Member.Name);
-                else if (expr is NewExpression)
-                    retunValue.AddRange(((NewExpression)expr).Members.Select(s => s.Name));
+                if (expr is MemberExpression memberExpression)
+                    retunValue.Add(memberExpression.Member.Name);
+                else if (expr is NewExpression newExpression)
+                    retunValue.AddRange(newExpression.Members.Select(s => s.Name));
                 else if (expr is UnaryExpression && expr.NodeType == ExpressionType.Convert || expr.NodeType == ExpressionType.ConvertChecked)
                     queue.Enqueue(((UnaryExpression)expr).Operand);
-                else if (expr is LambdaExpression)
-                    queue.Enqueue(((LambdaExpression)expr).Body);
+                else if (expr is LambdaExpression lambdaExpression)
+                    queue.Enqueue(lambdaExpression.Body);
             }
 
             return retunValue;

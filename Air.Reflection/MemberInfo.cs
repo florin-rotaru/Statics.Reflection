@@ -61,7 +61,7 @@ namespace Air.Reflection
             GetValue = CompileGetValue(type, field, DefaultValue);
         }
 
-        private bool HasLiteralOrInitOnlyFlag(FieldInfo fieldInfo) =>
+        private static bool HasLiteralOrInitOnlyFlag(FieldInfo fieldInfo) =>
             fieldInfo.Attributes.HasFlag(FieldAttributes.Literal) ||
                 fieldInfo.Attributes.HasFlag(FieldAttributes.InitOnly);
 
