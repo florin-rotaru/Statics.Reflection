@@ -151,13 +151,13 @@ namespace Internal
             return source;
         }
 
-        private bool CanSerialize<D>(S source, D destination)
+        private static bool CanSerialize<D>(S source, D destination)
         {
             return JsonConvert.SerializeObject(source) != null &&
                 JsonConvert.SerializeObject(destination) != null;
         }
 
-        private void AssertEqualsOrDefault<D>(
+        private static void AssertEqualsOrDefault<D>(
             S source,
             D destination,
             bool hasReadonlyMembers) where D : new()
@@ -172,7 +172,7 @@ namespace Internal
             Assert.True(CompareEquals(source, destination));
         }
 
-        private bool CompareEquals<L, R>(L left, R right)
+        private static bool CompareEquals<L, R>(L left, R right)
         {
             var sourceMembers = TypeInfo.GetMembers(typeof(L), true);
             var destinationMembers = TypeInfo.GetMembers(typeof(R), true);
@@ -191,7 +191,7 @@ namespace Internal
 
         private static readonly MethodInfo ObjectToString = typeof(object).GetMethod(nameof(object.ToString), Type.EmptyTypes);
 
-        private void AssertMembersEqual<L, R>(L left, string leftMemberName, R right, string rightMemberName)
+        private static void AssertMembersEqual<L, R>(L left, string leftMemberName, R right, string rightMemberName)
         {
             var leftMember = TypeInfo.GetMembers(typeof(L), true).First(m => m.Name == leftMemberName);
             var rightMember = TypeInfo.GetMembers(typeof(R), true).First(m => m.Name == rightMemberName);
@@ -223,13 +223,13 @@ namespace Internal
             }
         }
 
-        private object ConvertTo(Type source, Type destination, object value)
+        private static object ConvertTo(Type source, Type destination, object value)
         {
             var method = GetConvertToMethodInfo(source, destination);
             return method?.Invoke(null, new[] { value });
         }
 
-        private MethodInfo GetConvertToMethodInfo(
+        private static MethodInfo GetConvertToMethodInfo(
             Type nonNullableSourceType,
             Type nonNullableDestinationType)
         {
@@ -267,7 +267,7 @@ namespace Internal
             }
         }
 
-        private Type GetUndelyingType(Type type) =>
+        private static Type GetUndelyingType(Type type) =>
             Nullable.GetUnderlyingType(type) ?? type;
 
         private void MapperConvert<D>(
@@ -329,7 +329,7 @@ namespace Internal
             }
         }
 
-        private void GetMembers(Type sourceType, Type destinationType, out List<MemberInfo> sourceMembers, out List<MemberInfo> destinationMembers)
+        private static void GetMembers(Type sourceType, Type destinationType, out List<MemberInfo> sourceMembers, out List<MemberInfo> destinationMembers)
         {
             var outSourceMembers = TypeInfo.GetMembers(sourceType, true);
             var outDestinationMembers = TypeInfo.GetMembers(destinationType, true);
