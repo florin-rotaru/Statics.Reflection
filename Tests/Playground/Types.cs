@@ -1,7 +1,9 @@
 ﻿using Air.Reflection;
 using AutoFixture;
 using Models;
+using System;
 using System.Linq;
+using System.Linq.Expressions;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -51,6 +53,35 @@ namespace Playground
             var recursion_1 = TypeInfo.GetNodes(typeof(TNode), true, 1).ToList();
 
             Assert.True(recursion_1.Count > recursion_0.Count);
+        }
+
+        [Fact]
+        public void GetName()
+        {
+            Expression<Func<TNode, object>> expression = s => s.ParentNode.Name;
+
+            var name = TypeInfo.GetName(expression, true);
+            Assert.Equal(string.Join(".", nameof(TNode.ParentNode), nameof(TNode.ParentNode.Name)), name);
+
+            expression = s => nameof(TNode.Name);
+
+            name = TypeInfo.GetName(expression, true);
+            Assert.Equal(string.Join(".", nameof(TNode.ParentNode.Name)), name);
+        }
+
+        [Fact]
+        public void GetNames()
+        {
+            Expression<Func<TNode, object>> expression = s => new { s.ParentNode.Name, s.ParentNode.ChildNodes };
+
+            var names = TypeInfo.GetNames(expression, true).ToList();
+            Assert.Equal(string.Join(".", nameof(TNode.ParentNode), nameof(TNode.ParentNode.Name)), names[0]);
+            Assert.Equal(string.Join(".", nameof(TNode.ParentNode), nameof(TNode.ParentNode.ChildNodes)), names[1]);
+
+            expression = s => new { Name = true, ChildNodes = true };
+            names = TypeInfo.GetNames(expression, true).ToList();
+            Assert.Equal(string.Join(".", nameof(TNode.ParentNode.Name)), names[0]);
+            Assert.Equal(string.Join(".", nameof(TNode.ParentNode.ChildNodes)), names[1]);
         }
     }
 }

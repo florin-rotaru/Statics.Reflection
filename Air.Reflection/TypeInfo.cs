@@ -157,9 +157,9 @@ namespace Air.Reflection
             if (recursion < 0)
                 throw new ArgumentException(null, nameof(recursion));
 
-            List<TypeNode> returnValue = new List<TypeNode>();
+            List<TypeNode> returnValue = new();
 
-            Queue<TypeNode> queue = new Queue<TypeNode>(new[] {
+            Queue<TypeNode> queue = new(new[] {
                 new TypeNode(string.Empty, 0, type, IsStatic(type), useNullableUnderlyingTypeMembers)
             });
 
@@ -178,7 +178,7 @@ namespace Air.Reflection
                         (ignoreNodeTypes != null && ignoreNodeTypes.Contains(member.Type)))
                         continue;
 
-                    TypeNode node = new TypeNode(
+                    TypeNode node = new(
                         queueNode.Name == string.Empty ? member.Name : queueNode.Name + DOT + member.Name,
                         queueNode.Depth + 1,
                         member.Type,
@@ -212,7 +212,7 @@ namespace Air.Reflection
             return string.Empty;
         }
 
-        private static readonly ConcurrentDictionary<Type, object> ValueTypesDefaultValue = new ConcurrentDictionary<Type, object>();
+        private static readonly ConcurrentDictionary<Type, object> ValueTypesDefaultValue = new();
 
         private static object GetValueTypeDefaultValue(Type valueType)
         {
@@ -267,9 +267,9 @@ namespace Air.Reflection
             return member ?? string.Empty;
         }
 
-        public static string GetName(Expression expression, bool includePath)
+        public static string GetName(Expression expression, bool includePath = true)
         {
-            Stack<string> retunValue = new Stack<string>();
+            Stack<string> retunValue = new();
             Expression evaluate = expression;
 
             while (evaluate != null)
@@ -293,6 +293,11 @@ namespace Air.Reflection
                 {
                     evaluate = lambdaExpression.Body;
                 }
+                else if (evaluate is ConstantExpression constant)
+                {
+                    retunValue.Push(constant.Value?.ToString() ?? string.Empty);
+                    evaluate = null;
+                }
                 else
                 {
                     evaluate = null;
@@ -301,6 +306,45 @@ namespace Air.Reflection
 
             return retunValue.Count != 0 ? string.Join(".", retunValue.ToArray()) : string.Empty;
         }
+
+
+        public static IEnumerable<string> GetNames(Expression expression, bool includePath = true)
+        {
+            List<string> retunValue = new();
+            Queue<Expression> queue = new(new[] { expression });
+            Stack<string> memberName = new();
+
+            while (queue.Count != 0)
+            {
+                Expression expr = queue.Dequeue();
+                if (expr is MemberExpression memberExpression)
+                {
+                    retunValue.Add(memberExpression.Member.Name);
+                }
+                else if (expr is NewExpression newExpression)
+                {
+                    retunValue.AddRange(
+                        newExpression.Arguments.Select((s, i) =>
+                        {
+                            if (s.NodeType == ExpressionType.Constant)
+                                return newExpression.Members[i].Name;
+                            else
+                                return GetName(s, includePath);
+                        }));
+                }
+                else if (expr is UnaryExpression && expr.NodeType == ExpressionType.Convert || expr.NodeType == ExpressionType.ConvertChecked)
+                {
+                    queue.Enqueue(((UnaryExpression)expr).Operand);
+                }
+                else if (expr is LambdaExpression lambdaExpression)
+                {
+                    queue.Enqueue(lambdaExpression.Body);
+                }
+            }
+
+            return retunValue;
+        }
+
 
         public static IEnumerable<MemberInfo> GetMembers(Type type, bool useNullableUnderlyingTypeMembers = false)
         {
@@ -342,27 +386,6 @@ namespace Air.Reflection
         public static IEnumerable<string> GetMembersNames<T>(bool useNullableUnderlyingTypeMembers = false, int recursion = 0) =>
             GetMembersNames(typeof(T), useNullableUnderlyingTypeMembers, recursion);
 
-        public static IEnumerable<string> GetNames(Expression expression)
-        {
-            List<string> retunValue = new List<string>();
-            Queue<Expression> queue = new Queue<Expression>(new[] { expression });
-
-            while (queue.Count != 0)
-            {
-                Expression expr = queue.Dequeue();
-                if (expr is MemberExpression memberExpression)
-                    retunValue.Add(memberExpression.Member.Name);
-                else if (expr is NewExpression newExpression)
-                    retunValue.AddRange(newExpression.Members.Select(s => s.Name));
-                else if (expr is UnaryExpression && expr.NodeType == ExpressionType.Convert || expr.NodeType == ExpressionType.ConvertChecked)
-                    queue.Enqueue(((UnaryExpression)expr).Operand);
-                else if (expr is LambdaExpression lambdaExpression)
-                    queue.Enqueue(lambdaExpression.Body);
-            }
-
-            return retunValue;
-        }
-
         public static IDictionary<string, MemberInfo> MembersInfoDictionary(Type type, bool useNullableUnderlyingTypeMembers = false, int recursion = 0) =>
             GetNodes(type, useNullableUnderlyingTypeMembers, recursion)
                 .SelectMany(
@@ -374,7 +397,7 @@ namespace Air.Reflection
 
         public static IDictionary<string, object> ValuesDictionary<T>(T values, int recursion = 0)
         {
-            Dictionary<string, object> retunValue = new Dictionary<string, object>();
+            Dictionary<string, object> retunValue = new();
 
             List<TypeNode> nodes = GetNodes(typeof(T), true, recursion).ToList();
             nodes.First(w => w.Depth == 0).Value = values;

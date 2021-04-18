@@ -34,10 +34,10 @@ namespace Air.Reflection.Emit
 
             #region TimeSpan
             public static TimeSpan ToTimeSpan(long value) =>
-                new TimeSpan(value);
+                new(value);
 
             public static TimeSpan ToTimeSpan(long? value) =>
-                new TimeSpan(value.GetValueOrDefault());
+                new(value.GetValueOrDefault());
 
             public static TimeSpan ToTimeSpan(TimeSpan? value) =>
                 value.GetValueOrDefault();
@@ -67,10 +67,10 @@ namespace Air.Reflection.Emit
 
             #region DateTimeOffset
             public static DateTimeOffset ToDateTimeOffset(DateTime value) =>
-                new DateTimeOffset(value);
+                new(value);
 
             public static DateTimeOffset ToDateTimeOffset(DateTime? value) =>
-                new DateTimeOffset(value.GetValueOrDefault());
+                new(value.GetValueOrDefault());
 
             public static DateTimeOffset ToDateTimeOffset(DateTimeOffset? value) =>
                 value.GetValueOrDefault();
@@ -100,7 +100,7 @@ namespace Air.Reflection.Emit
 
             #region Guid
             public static Guid ToGuid(string value) =>
-                new Guid(value);
+                new(value);
 
             public static Guid ToGuid(Guid? value) =>
                 value.GetValueOrDefault();

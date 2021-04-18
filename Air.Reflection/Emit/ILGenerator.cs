@@ -11,8 +11,8 @@ namespace Air.Reflection.Emit
     {
         System.Reflection.Emit.ILGenerator IL { get; }
         bool LogEnabled { get; }
-        StringBuilder LocalsBuilder { get; } = new StringBuilder();
-        StringBuilder LogBuilder { get; } = new StringBuilder();
+        StringBuilder LocalsBuilder { get; } = new();
+        StringBuilder LogBuilder { get; } = new();
 
         public ILGenerator(System.Reflection.Emit.ILGenerator iLGenerator, bool enableLog = false)
         {
