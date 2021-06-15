@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Air.Reflection
+namespace Statics.Reflection
 {
     public class TypeNode
     {

@@ -1,4 +1,4 @@
-﻿namespace Air.Reflection.Emit
+﻿namespace Statics.Reflection.Emit
 {
     public partial class ILGenerator
     {

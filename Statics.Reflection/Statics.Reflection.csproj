@@ -1,16 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	  <PackageId>Air.Reflection</PackageId>
+	<PackageId>Statics.Reflection</PackageId>
     <TargetFramework>net5.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Florin Rotaru</Authors>
     <Company />
-    <Version>5.0.1</Version>
+    <Version>5.0.2</Version>
 	  <PackageLicenseFile>LICENSE</PackageLicenseFile>
 	  <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 	  <Description>Reflection and IL components</Description>
-	  <RepositoryUrl>https://github.com/florin-rotaru/Air.Reflection</RepositoryUrl>
+	  <RepositoryUrl>https://github.com/florin-rotaru/Statics.Reflection</RepositoryUrl>
 	  <PackageTags>reflection, il</PackageTags>
 	  <LangVersion>9.0</LangVersion>
 	  <Copyright></Copyright>

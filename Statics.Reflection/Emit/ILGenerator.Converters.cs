@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Air.Reflection.Emit
+namespace Statics.Reflection.Emit
 {
     public partial class ILGenerator
     {

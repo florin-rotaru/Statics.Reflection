@@ -1,7 +1,8 @@
-﻿using Air.Reflection;
+﻿using Statics.Reflection;
 using AutoFixture;
 using Models;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Xunit;
@@ -82,6 +83,16 @@ namespace Playground
             names = TypeInfo.GetNames(expression, true).ToList();
             Assert.Equal(string.Join(".", nameof(TNode.ParentNode.Name)), names[0]);
             Assert.Equal(string.Join(".", nameof(TNode.ParentNode.ChildNodes)), names[1]);
+        }
+
+        [Fact]
+        public void ValuesDictionary()
+        {
+            TC0_I0_Members instance = Fixture.Create<TC0_I0_Members>();
+
+            IDictionary<string, object> instanceValues = TypeInfo.ValuesDictionary(instance);
+
+            Assert.Equal(instance.StringMember, instanceValues[nameof(instance.StringMember)].ToString());
         }
     }
 }

@@ -5,7 +5,7 @@ using System.Reflection.Emit;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace Air.Reflection.Emit
+namespace Statics.Reflection.Emit
 {
     public partial class ILGenerator
     {

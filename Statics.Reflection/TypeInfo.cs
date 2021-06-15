@@ -6,7 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Air.Reflection
+namespace Statics.Reflection
 {
     public static class TypeInfo
     {

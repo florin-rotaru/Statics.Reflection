@@ -1,4 +1,4 @@
-﻿using Air.Mapper;
+﻿using Statics.Mapper;
 using AutoFixture;
 using AutoFixture.Kernel;
 using Models;
@@ -10,9 +10,9 @@ using System.Reflection;
 using System.Reflection.Emit;
 using Xunit;
 using Xunit.Abstractions;
-using Emit = Air.Reflection.Emit;
-using MemberInfo = Air.Reflection.MemberInfo;
-using TypeInfo = Air.Reflection.TypeInfo;
+using Emit = Statics.Reflection.Emit;
+using MemberInfo = Statics.Reflection.MemberInfo;
+using TypeInfo = Statics.Reflection.TypeInfo;
 
 namespace Internal
 {
@@ -33,7 +33,7 @@ namespace Internal
             Type destinationType,
             List<MemberInfo> destinationMembers)
         {
-            var returnValue = new DynamicMethod($"{nameof(Air)}{Guid.NewGuid():N}", destinationType, new[] { sourceType }, false);
+            var returnValue = new DynamicMethod($"{nameof(Statics)}{Guid.NewGuid():N}", destinationType, new[] { sourceType }, false);
             var il = new Emit.ILGenerator(returnValue.GetILGenerator(), true);
 
             var sourceUnderlyingType = Nullable.GetUnderlyingType(sourceType);

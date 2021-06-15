@@ -2,7 +2,7 @@
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace Air.Reflection
+namespace Statics.Reflection
 {
     public class MemberInfo
     {
@@ -78,7 +78,7 @@ namespace Air.Reflection
 
         private static void CreateSignature(out DynamicMethod dynamicMethod, out Emit.ILGenerator il)
         {
-            dynamicMethod = new DynamicMethod($"{nameof(Air)}{Guid.NewGuid():N}", typeof(object), new[] { typeof(object) }, false);
+            dynamicMethod = new DynamicMethod($"{nameof(Statics)}{Guid.NewGuid():N}", typeof(object), new[] { typeof(object) }, false);
             il = new Emit.ILGenerator(dynamicMethod.GetILGenerator(), true);
         }
 
