@@ -1,8 +1,8 @@
-﻿using Statics.Mapper;
-using AutoFixture;
+﻿using AutoFixture;
 using AutoFixture.Kernel;
 using Models;
 using Newtonsoft.Json;
+using Statics.Mapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -276,7 +276,7 @@ namespace Internal
             Type destinationType,
             List<MemberInfo> destinationMembers) where D : new()
         {
-            Random random = new Random();
+            Random random = new();
 
             for (int s = 0; s < sourceMembers.Count; s++)
             {
@@ -338,7 +338,7 @@ namespace Internal
             destinationMembers = outDestinationMembers.Where(s => outSourceMembers.Any(m => m.Name == s.Name)).OrderBy(o => o.Name).ToList();
         }
 
-        public void ToClass<D>(bool hasReadonlyMembers, bool hasStaticMembers) where D : new()
+        public void ToClass<D>(bool hasReadonlyMembers) where D : new()
         {
             if (hasReadonlyMembers)
                 return;
@@ -351,7 +351,7 @@ namespace Internal
             var map = (Func<S, D>)CompileMethod(sourceType, sourceMembers, destinationType, destinationMembers).CreateDelegate(typeof(Func<S, D>));
 
             S source = NewSource();
-            D destination = new D();
+            D destination = new();
 
             // =======
             destination = map(source);
@@ -360,7 +360,7 @@ namespace Internal
             MapperConvert<D>(sourceType, sourceMembers, destinationType, destinationMembers);
         }
 
-        public void ToStruct<D>(bool hasReadonlyMembers, bool hasStaticMembers) where D : struct
+        public void ToStruct<D>(bool hasReadonlyMembers) where D : struct
         {
             if (hasReadonlyMembers)
                 return;
@@ -373,7 +373,7 @@ namespace Internal
             var map = (Func<S, D>)CompileMethod(sourceType, sourceMembers, destinationType, destinationMembers).CreateDelegate(typeof(Func<S, D>));
 
             S source = NewSource();
-            D destination = new D();
+            D destination = new();
 
             // =======
             destination = map(source);
@@ -382,7 +382,7 @@ namespace Internal
             MapperConvert<D>(sourceType, sourceMembers, destinationType, destinationMembers);
         }
 
-        public void ToNullableStruct<D>(bool hasReadonlyMembers, bool hasStaticMembers) where D : struct
+        public void ToNullableStruct<D>(bool hasReadonlyMembers) where D : struct
         {
             if (hasReadonlyMembers)
                 return;
@@ -395,7 +395,7 @@ namespace Internal
             var map = (Func<S, D?>)CompileMethod(sourceType, sourceMembers, destinationType, destinationMembers).CreateDelegate(typeof(Func<S, D?>));
 
             S source = NewSource();
-            D? destination = new D?();
+            D? destination = new();
 
             // =======
             destination = map(source);

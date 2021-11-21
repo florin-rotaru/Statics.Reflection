@@ -2,18 +2,18 @@
 
   <PropertyGroup>
 	<PackageId>Statics.Reflection</PackageId>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Florin Rotaru</Authors>
     <Company />
-    <Version>5.0.2</Version>
-	  <PackageLicenseFile>LICENSE</PackageLicenseFile>
-	  <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-	  <Description>Reflection and IL components</Description>
-	  <RepositoryUrl>https://github.com/florin-rotaru/Statics.Reflection</RepositoryUrl>
-	  <PackageTags>reflection, il</PackageTags>
-	  <LangVersion>9.0</LangVersion>
-	  <Copyright></Copyright>
+    <Version>6.0.0</Version>
+	<PackageLicenseFile>LICENSE</PackageLicenseFile>
+	<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+	<Description>Reflection and IL components</Description>
+	<RepositoryUrl>https://github.com/florin-rotaru/Statics.Reflection</RepositoryUrl>
+	<PackageTags>reflection, il</PackageTags>
+	<LangVersion>9.0</LangVersion>
+	<Copyright></Copyright>
   </PropertyGroup>
   <ItemGroup>
     <None Include="LICENSE" Pack="true" PackagePath="" />

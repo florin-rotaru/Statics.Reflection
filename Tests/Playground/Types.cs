@@ -8,7 +8,7 @@ using System.Linq.Expressions;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Playground
+namespace Playground.Tests
 {
     public class Types
     {

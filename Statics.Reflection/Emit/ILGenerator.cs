@@ -30,7 +30,7 @@ namespace Statics.Reflection.Emit
                 .Append(LocalsBuilder.Length != 0 ? Environment.NewLine : string.Empty)
                 .Append(LogBuilder);
 
-        #region System.Reflection.Emit.ILGenerator Version=5.0.0.0
+        #region System.Reflection.Emit.ILGeneration, Version=6.0.0.0
 
         public int ILOffset => IL.ILOffset;
 
